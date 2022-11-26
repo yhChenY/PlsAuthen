@@ -9,7 +9,7 @@ public class Token {
     private String pt;
     private int n = 8;
     private int m = 3;
-
+    
     public Token(String name) {
         this.name = name;
     }
@@ -181,5 +181,31 @@ public class Token {
         System.out.println("Token finished setup.");
         System.out.println("PIN: " + pin);
         return true;
+    }
+    
+    private String rResponse(String ids, String uid, String hr){
+        // if (not setup) {setup}
+        // if (not bound) {bound}
+        
+        String[] kg = keyGen();
+        String pk = kg[0];
+        String sk = kg[1];
+        int n = 0;
+        String cid = Utils.getRandom01(128);
+        StringBuilder ad = new StringBuilder();
+        //ad.append(SHA256(ids));
+        ad.append(n);
+        ad.append(cid);
+        ad.append(pk);
+        // sign
+        // store the information into database
+        return /*here should not be ad*/ad.toString();
+    }
+    
+    private static String[] keyGen(){
+        String[] ans = new String[2];
+        //ans[0] = pk;
+        //ans[1] = sk;
+        return ans;
     }
 }
