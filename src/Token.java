@@ -199,7 +199,7 @@ public class Token {
         ad.append(pk);
         // sign
         // store the information into database
-        return /*here should not be ad*/ad.toString();
+        return /*here should not be ad*/ ad.toString();
     }
     
     private static String[] keyGen(){
