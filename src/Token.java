@@ -193,7 +193,7 @@ public class Token {
         int n = 0;
         String cid = Utils.getRandom01(128);
         StringBuilder ad = new StringBuilder();
-        //ad.append(SHA256(ids));
+        ad.append(Utils.SHA256(ids));
         ad.append(n);
         ad.append(cid);
         ad.append(pk);
