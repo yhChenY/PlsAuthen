@@ -1,14 +1,12 @@
-import java.security.Security;
-import java.util.Random;
 
 public class Server {
     String hostname;
     String curUid;
     String curRs;
     
-    private String rChallenge(){
+    public String rChallenge() {
         StringBuilder sb = new StringBuilder();
-        curUid = Utils.getRandom01(128<<2);
+        curUid = Utils.getRandom01(128 << 2);
         sb.append(curUid);
         curRs = Utils.getRandom01(128);
         sb.append(curRs);
@@ -18,7 +16,7 @@ public class Server {
         return sb.toString();
     }
     
-    private String aChallenge(){
+    public String aChallenge() {
         StringBuilder sb = new StringBuilder();
         String rs = Utils.getRandom01(128);
         sb.append(rs);
@@ -27,34 +25,42 @@ public class Server {
         return sb.toString();
     }
     
-    boolean rCheck(String ad){
-        Object[] info = adDecoder(ad,true);
-        String h = (String)info[0];
-        int n = (int)info[1];
-        String cid = (String)info[2];
-        String pk = (String)info[3];
+    boolean rCheck(String ad) {
+        Object[] info = adDecoder(ad, true);
+        String h = (String) info[0];
+        int n = (int) info[1];
+        String cid = (String) info[2];
+        String pk = (String) info[3];
         //check
         //TODO
         return false;
     }
     
-    Object[] adDecoder(String ad,boolean r){
+    boolean aCheck(String ad) {
+        Object[] info = adDecoder(ad, false);
+        String h = (String) info[0];
+        int nt = (int) info[1];
+        //check
+        return false;
+    }
+    
+    Object[] adDecoder(String ad, boolean r) {
         Object[] ans;
-        if(r){
+        if (r) {
             ans = new Object[4];
-            String h = ad.substring(0,256);
+            String h = ad.substring(0, 256);
             ans[0] = h;
-            int n = Utils.binToInt(ad.substring(256,256+32));
+            int n = Utils.binToInt(ad.substring(256, 256 + 32));
             ans[1] = n;
-            String cid = ad.substring(288,288+512);
+            String cid = ad.substring(288, 288 + 512);
             ans[2] = cid;
-            String pk = ad.substring(800,928);
+            String pk = ad.substring(800, 928);
             ans[3] = pk;
-        }else{
+        } else {
             ans = new Object[2];
-            String h = ad.substring(0,256);
+            String h = ad.substring(0, 256);
             ans[0] = h;
-            int nt = Utils.binToInt(ad.substring(256,256+32));
+            int nt = Utils.binToInt(ad.substring(256, 256 + 32));
             ans[1] = nt;
         }
         return ans;

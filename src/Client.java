@@ -4,7 +4,6 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Scanner;
 
-import static java.lang.Long.decode;
 
 public class Client {
     static String requestSetup(String pkAStr) {
@@ -158,4 +157,31 @@ public class Client {
         dbOp.closeConnection();
         return pt;
     }
+    
+    public void register(Token token, String intendedIds,Server server){
+        String ch = server.rChallenge();
+        String uid = ch.substring(0,512);
+        String r = ch.substring(512,512+128);
+        String ids = ch.substring(640);
+        if(!ids.equals(intendedIds)){
+            System.out.println("Current server is not matched with intended server, registration stopped");
+        }else {
+            StringBuilder sb = new StringBuilder();
+            sb.append(uid);
+            sb.append(Utils.SHA256(r));
+            sb.append(ids);
+            //??
+            String res = token.rResponse(ids,uid,Utils.SHA256(r));
+            // store info
+            boolean ans = server.rCheck(res);
+            if(ans){
+                System.out.println("Register successfully");
+            }else{
+                System.out.println("Register failed");
+            }
+        }
+    }
+    
+    
+    
 }

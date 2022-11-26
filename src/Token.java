@@ -183,7 +183,7 @@ public class Token {
         return true;
     }
     
-    private String rResponse(String ids, String uid, String hr){
+    public String rResponse(String ids, String uid, String hr){
         // if (not setup) {setup}
         // if (not bound) {bound}
         

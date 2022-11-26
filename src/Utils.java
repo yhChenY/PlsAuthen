@@ -4,13 +4,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 public class Utils {
-    public static void main(String[] args) {
-        String str = "00000000000000000000000000001010";
-        int ss = binToInt(str);
-        System.out.println(ss);
-        String s = intToBinStr(ss);
-        System.out.println(s);
-    }
     
     public static String getRandom01(int length) {
         StringBuilder sb = new StringBuilder();
