@@ -9,10 +9,8 @@ public class Token {
     private String pt;
     private int n = 8;
     private int m = 3;
-    private DatabaseOp db;
     public Token(String name) {
         this.name = name;
-        db = new DatabaseOp();
     }
     
     boolean setup() {
@@ -195,13 +193,16 @@ public class Token {
         String cid = Utils.getRandom01(128);
         StringBuilder ad = new StringBuilder();
         ad.append(Utils.SHA256(ids));
-        ad.append(n);
+        ad.append(Utils.intToBinStr(n));
         ad.append(cid);
         ad.append(pk);
         // sign
         
         // store the information into database
+        DatabaseOp db = new DatabaseOp();
+        db.getConnection();
         db.insertTokenCredential(name,ids,cid,n,sk,pk);
+        db.closeConnection();
         return /*here should not be ad*/ ad.toString();
     }
     
@@ -217,6 +218,7 @@ public class Token {
         String[] ans = new String[2];
         ans[0] = "pk";
         ans[1] = "sk";
+        //TODO
         return ans;
     }
 }

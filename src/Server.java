@@ -31,9 +31,17 @@ public class Server {
         int n = (int) info[1];
         String cid = (String) info[2];
         String pk = (String) info[3];
-        //check
-        //TODO
-        return false;
+        //check (select from database and compare)
+        // to do
+        if (n != 0 || !h.equals(Utils.SHA256(ids))){
+            return false;
+        }
+        //store info
+        DatabaseOp db = new DatabaseOp();
+        db.getConnection();
+        db.insertServerCredential(ids,cid,curUid,n,pk);
+        db.closeConnection();
+        return true;
     }
     
     boolean aCheck(String ad) {
@@ -41,6 +49,7 @@ public class Server {
         String h = (String) info[0];
         int nt = (int) info[1];
         //check
+        
         return false;
     }
     
@@ -48,19 +57,19 @@ public class Server {
         Object[] ans;
         if (r) {
             ans = new Object[4];
-            String h = ad.substring(0, 256);
+            String h = ad.substring(0, 64);
             ans[0] = h;
-            int n = Utils.binToInt(ad.substring(256, 256 + 32));
+            int n = Utils.binToInt(ad.substring(64, 96));
             ans[1] = n;
-            String cid = ad.substring(288, 288 + 512);
+            String cid = ad.substring(96, 224);
             ans[2] = cid;
-            String pk = ad.substring(800, 928);
+            String pk = ad.substring(224);
             ans[3] = pk;
         } else {
             ans = new Object[2];
-            String h = ad.substring(0, 256);
+            String h = ad.substring(0, 64);
             ans[0] = h;
-            int nt = Utils.binToInt(ad.substring(256, 256 + 32));
+            int nt = Utils.binToInt(ad.substring(64, 96));
             ans[1] = nt;
         }
         return ans;
