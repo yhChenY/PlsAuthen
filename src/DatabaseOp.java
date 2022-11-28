@@ -94,4 +94,16 @@ public class DatabaseOp {
         }
         return null;
     }
+    
+    public void insertTokenCredential(String tokenName, String ids, String cid, int n, String sk, String pk){
+        Statement stmt = null;
+        String sql = "insert into token_credential values("+tokenName+","+ids+","+cid+");";
+        try{
+            stmt = con.createStatement();
+            stmt.executeQuery(sql);
+            stmt.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }

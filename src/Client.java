@@ -6,6 +6,10 @@ import java.util.Scanner;
 
 
 public class Client {
+    
+    int clientId;
+    
+    
     static String requestSetup(String pkAStr) {
         try {
             // 获取pin
@@ -182,6 +186,18 @@ public class Client {
         }
     }
     
-    
-    
+    public void login(Token token,String intendedIds, Server server){
+        String ch = server.aChallenge();
+        String r = ch.substring(0,128);
+        String ids = ch.substring(128);
+        if(!ids.equals(intendedIds)){
+            System.out.println("Current server is not matched with intended server, authentication stopped");
+        }else{
+            StringBuilder sb = new StringBuilder();
+            sb.append(Utils.SHA256(r));
+            sb.append(ids);
+            
+//            String res = token.
+        }
+    }
 }

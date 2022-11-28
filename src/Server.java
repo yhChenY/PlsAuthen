@@ -1,6 +1,6 @@
 
 public class Server {
-    String hostname;
+    String ids;
     String curUid;
     String curRs;
     
@@ -10,7 +10,7 @@ public class Server {
         sb.append(curUid);
         curRs = Utils.getRandom01(128);
         sb.append(curRs);
-        sb.append(hostname);
+        sb.append(ids);
         // send to client??
         // hostname 不定长
         return sb.toString();
@@ -20,7 +20,7 @@ public class Server {
         StringBuilder sb = new StringBuilder();
         String rs = Utils.getRandom01(128);
         sb.append(rs);
-        sb.append(hostname);
+        sb.append(ids);
         // send to client
         return sb.toString();
     }
