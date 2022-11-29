@@ -185,7 +185,6 @@ public class Token {
     public String rResponse(String ids, String uid, String hr) {
         // if (not setup) {setup}
         // if (not bound) {bound}
-        
         String[] kg = keyGen();
         String pk = kg[0];
         String sk = kg[1];
@@ -197,7 +196,7 @@ public class Token {
         ad.append(cid);
         ad.append(pk);
         // sign
-        
+        // TODO
         // store the information into database
         DatabaseOp db = new DatabaseOp();
         db.getConnection();
@@ -206,13 +205,23 @@ public class Token {
         return /*here should not be ad*/ ad.toString();
     }
     
-//    public String aResponse(String ids, String hr) {
-//        // select from database according to ids
-//        // n++;
-//        //ad
-//        //sign
-//        //send
-//    }
+    public String aResponse(String ids, String hr) {
+        // select from database according to ids
+        DatabaseOp db = new DatabaseOp();
+        db.getConnection();
+        String cid = db.selectCid(name,ids);
+        int n = db.selectN(name,ids);
+        n++;
+        //ad
+        
+        //sign
+        
+        // update credential info
+        db.updateN_token(name,ids,n);
+        db.closeConnection();
+        //send TODO
+        return cid;
+    }
     
     private static String[] keyGen() {
         String[] ans = new String[2];

@@ -194,10 +194,12 @@ public class Client {
             System.out.println("Current server is not matched with intended server, authentication stopped");
         }else{
             StringBuilder sb = new StringBuilder();
-            sb.append(Utils.SHA256(r));
+            String hr = Utils.SHA256(r);
+            sb.append(hr);
             sb.append(ids);
             
-//            String res = token.
+            String res = token.aResponse(ids,hr);
+            //TODO
         }
     }
 }

@@ -48,8 +48,13 @@ public class Server {
         Object[] info = adDecoder(ad, false);
         String h = (String) info[0];
         int nt = (int) info[1];
-        //check
-        
+        String cid; //TODO
+        //check... select and compare
+        //update credential info
+        DatabaseOp db = new DatabaseOp();
+        db.getConnection();
+        //TODO
+        db.closeConnection();
         return false;
     }
     

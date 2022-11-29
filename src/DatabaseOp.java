@@ -100,7 +100,7 @@ public class DatabaseOp {
             PreparedStatement ps;
             String sql2 = "insert into token_credential_info(token,ids,cid,n,sk,pk) values(?,?,?,?,?,?);";
             ps = con.prepareStatement(sql2);
-            ps.setString(1,tokenName);
+            ps.setString(1, tokenName);
             ps.setString(2, ids);
             ps.setString(3, cid);
             ps.setInt(4, n);
@@ -116,15 +116,74 @@ public class DatabaseOp {
         try {
             String sql = "insert into server_credential_info(ids,cid,uid,n,pk) values(?,?,?,?,?)";
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1,ids);
-            ps.setString(2,cid);
-            ps.setString(3,uid);
-            ps.setInt(4,n);
-            ps.setString(5,pk);
+            ps.setString(1, ids);
+            ps.setString(2, cid);
+            ps.setString(3, uid);
+            ps.setInt(4, n);
+            ps.setString(5, pk);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
+    public String selectCid(String token, String ids) {
+        PreparedStatement stmt = null;
+        String ans = null;
+        try {
+            String sql = "select from token_credential_info where token = ? and ids = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, token);
+            stmt.setString(2, ids);
+            ResultSet rs = stmt.executeQuery();
+            ans = rs.getString("cid");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ans;
+    }
+    
+    public int selectN(String token, String ids) {
+        PreparedStatement stmt = null;
+        int n = -1;
+        try {
+            String sql = "select from token_credential_info where token = ? and ids = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, token);
+            stmt.setString(2, ids);
+            ResultSet rs = stmt.executeQuery();
+            n = rs.getInt("n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return n;
+    }
+    
+    public void updateN_token(String token, String ids, int newN){
+        PreparedStatement stmt = null;
+        try {
+            String sql = "update token_credential_info set n = ? where token = ? and ids = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1,newN);
+            stmt.setString(2, token);
+            stmt.setString(3, ids);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void updateN_server(String ids, String cid, int newN){
+        PreparedStatement stmt = null;
+        try {
+            String sql = "update server_credential_info set n = ? where cid = ? and ids = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1,newN);
+            stmt.setString(2, cid);
+            stmt.setString(3, ids);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
