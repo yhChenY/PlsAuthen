@@ -25,13 +25,15 @@ public class Server {
         return sb.toString();
     }
     
-    boolean rCheck(String ad) {
+    boolean rCheck(Object[] res) {
+        String ad = (String)res[0];
         Object[] info = adDecoder(ad, true);
         String h = (String) info[0];
         int n = (int) info[1];
         String cid = (String) info[2];
         String pk = (String) info[3];
         //check (select from database and compare)
+        
         // to do
         if (n != 0 || !h.equals(Utils.SHA256(ids))){
             return false;
@@ -44,18 +46,26 @@ public class Server {
         return true;
     }
     
-    boolean aCheck(String ad) {
+    String aCheck(String ad) {
+        String ans = "??";
         Object[] info = adDecoder(ad, false);
         String h = (String) info[0];
         int nt = (int) info[1];
-        String cid; //TODO
+        System.out.println(nt);
+        String cid = (String) info[2];
         //check... select and compare
-        //update credential info
         DatabaseOp db = new DatabaseOp();
         db.getConnection();
-        //TODO
+        int n = db.selectN_server(ids,cid);
+        if(nt<=n){
+            System.out.printf("nt = %d n = %d",nt,n);
+            return "FAILED";
+        }
+        ans = db.selectUid_server(ids,cid);
+        //update credential info
+        db.updateN_server(ids,cid,nt);
         db.closeConnection();
-        return false;
+        return ans;
     }
     
     Object[] adDecoder(String ad, boolean r) {
@@ -71,11 +81,13 @@ public class Server {
             String pk = ad.substring(224);
             ans[3] = pk;
         } else {
-            ans = new Object[2];
+            ans = new Object[3];
             String h = ad.substring(0, 64);
             ans[0] = h;
             int nt = Utils.binToInt(ad.substring(64, 96));
             ans[1] = nt;
+            String cid = ad.substring(96);
+            ans[2] = cid;
         }
         return ans;
     }

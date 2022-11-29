@@ -131,12 +131,16 @@ public class DatabaseOp {
         PreparedStatement stmt = null;
         String ans = null;
         try {
-            String sql = "select from token_credential_info where token = ? and ids = ?";
+            String sql = "select * from token_credential_info where token = ? and ids = ?";
             stmt = con.prepareStatement(sql);
             stmt.setString(1, token);
             stmt.setString(2, ids);
             ResultSet rs = stmt.executeQuery();
-            ans = rs.getString("cid");
+            while (rs.next()){
+                ans = rs.getString("cid");
+            }
+            rs.close();
+            stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -147,16 +151,55 @@ public class DatabaseOp {
         PreparedStatement stmt = null;
         int n = -1;
         try {
-            String sql = "select from token_credential_info where token = ? and ids = ?";
+            String sql = "select * from token_credential_info where token = ? and ids = ?";
             stmt = con.prepareStatement(sql);
             stmt.setString(1, token);
             stmt.setString(2, ids);
             ResultSet rs = stmt.executeQuery();
-            n = rs.getInt("n");
+            while (rs.next()){
+                n = rs.getInt("n");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return n;
+    }
+    
+    public int selectN_server(String ids,String cid){
+        PreparedStatement stmt = null;
+        int n = -1;
+        try {
+            String sql = "select * from server_credential_info where cid = ? and ids = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, cid);
+            stmt.setString(2, ids);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()){
+                n = rs.getInt("n");
+//                System.out.println("n="+n);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return n;
+    }
+    
+    public String selectUid_server(String ids, String cid){
+        PreparedStatement stmt = null;
+        String ans = null;
+        try {
+            String sql = "select * from server_credential_info where cid = ? and ids = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, cid);
+            stmt.setString(2, ids);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                ans = rs.getString("uid");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ans;
     }
     
     public void updateN_token(String token, String ids, int newN){

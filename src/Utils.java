@@ -1,8 +1,7 @@
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.util.Random;
-
+import java.util.Base64;
 public class Utils {
     
     public static String getRandom01(int length) {
@@ -64,4 +63,29 @@ public class Utils {
         }
         return ans;
     }
+    
+    public static byte[] sign(byte[] data, PrivateKey privateKey) {
+        try {
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(privateKey);
+            signature.update(data);
+            return signature.sign();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static boolean verify(byte[] data, PublicKey publicKey, byte[] sign) {
+        try {
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initVerify(publicKey);
+            signature.update(data);
+            return signature.verify(sign);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
 }

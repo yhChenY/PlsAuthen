@@ -1,6 +1,10 @@
+import jdk.jshell.execution.Util;
+
 import javax.crypto.KeyAgreement;
+import java.io.IOException;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class Token {
@@ -9,8 +13,10 @@ public class Token {
     private String pt;
     private int n = 8;
     private int m = 3;
-    public Token(String name) {
+    public int tokenVersion;
+    public Token(String name, int version) {
         this.name = name;
+        tokenVersion = version;
     }
     
     boolean setup() {
@@ -182,7 +188,7 @@ public class Token {
         return true;
     }
     
-    public String rResponse(String ids, String uid, String hr) {
+    public Object[] rResponse(String ids, String uid, String hr) {
         // if (not setup) {setup}
         // if (not bound) {bound}
         String[] kg = keyGen();
@@ -190,19 +196,30 @@ public class Token {
         String sk = kg[1];
         int n = 0;
         String cid = Utils.getRandom01(128);
-        StringBuilder ad = new StringBuilder();
-        ad.append(Utils.SHA256(ids));
-        ad.append(Utils.intToBinStr(n));
-        ad.append(cid);
-        ad.append(pk);
+        StringBuilder adBuilder = new StringBuilder();
+        adBuilder.append(Utils.SHA256(ids));
+        adBuilder.append(Utils.intToBinStr(n));
+        adBuilder.append(cid);
+        adBuilder.append(pk);
+        String ad = adBuilder.toString();
+        // ad is always 64 + 32 + 128 + 392 = 616 length
+        String signData = ad + hr;
         // sign
-        // TODO
+        byte[] sig = null;
+//        try{
+//            sig = Utils.sign(Base64.decode(signData),PKI.getAkt(tokenVersion));
+//        }catch (IOException e){
+//            e.printStackTrace();
+//        }
         // store the information into database
         DatabaseOp db = new DatabaseOp();
         db.getConnection();
         db.insertTokenCredential(name,ids,cid,n,sk,pk);
         db.closeConnection();
-        return /*here should not be ad*/ ad.toString();
+        Object[] ans = new Object[2];
+        ans[0] = ad;
+        ans[1] = sig;
+        return ans;
     }
     
     public String aResponse(String ids, String hr) {
@@ -213,21 +230,33 @@ public class Token {
         int n = db.selectN(name,ids);
         n++;
         //ad
-        
+        StringBuilder ad = new StringBuilder();
+        ad.append(Utils.SHA256(ids));
+        ad.append(Utils.intToBinStr(n));
+        ad.append(cid);
         //sign
         
         // update credential info
         db.updateN_token(name,ids,n);
         db.closeConnection();
-        //send TODO
-        return cid;
+        //send
+        return ad.toString();
     }
     
-    private static String[] keyGen() {
+    public static String[] keyGen(){
         String[] ans = new String[2];
-        ans[0] = "pk";
-        ans[1] = "sk";
-        //TODO
+        try{
+            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+//            RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048,RSAKeyGenParameterSpec.F4);
+            keyPairGen.initialize(2048);
+            KeyPair keyPair = keyPairGen.generateKeyPair();
+            PublicKey publicKey = keyPair.getPublic();
+            PrivateKey privateKey = keyPair.getPrivate();
+            ans[0] = Base64.encodeBytes(publicKey.getEncoded());
+            ans[1] = Base64.encodeBytes(privateKey.getEncoded());
+        }catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+        }
         return ans;
     }
 }
