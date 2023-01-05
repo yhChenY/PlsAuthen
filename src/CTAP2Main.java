@@ -6,7 +6,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class CTAP2Main {
     public static void main(String[] args) {
-        System.out.println("test git4");
+        System.out.println("test git5");
 
         
         Token token = new Token("000005",0);
