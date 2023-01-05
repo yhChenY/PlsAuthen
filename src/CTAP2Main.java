@@ -5,10 +5,7 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class CTAP2Main {
-    public static void main(String[] args) {
-        System.out.println("test git4");
-
-        
+    public static void main(String[] args) { 
         Token token = new Token("000005",0);
 //        token.setup();
 //        token.bind();
