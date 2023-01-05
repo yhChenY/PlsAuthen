@@ -135,18 +135,56 @@ public class Client {
     }
 
     private static String generatePin(int len) {
-        // 还没有去重操作（）
         // ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
         final String chars = "0123456789";
 
         SecureRandom random = new SecureRandom();
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb;
+        String pin;
 
-        for (int i = 0; i < len; i++) {
-            int randomIndex = random.nextInt(chars.length());
-            sb.append(chars.charAt(randomIndex));
+        do {
+            sb = new StringBuilder();
+            for (int i = 0; i < len; i++) {
+                int randomIndex = random.nextInt(chars.length());
+                sb.append(chars.charAt(randomIndex));
+            }
+            pin = sb.toString();
+        } while (isPinDuplicated(pin));
+
+        storePin(pin);
+
+        return pin;
+    }
+
+    private static boolean isPinDuplicated(String pin) {
+        DatabaseOp dbOp = new DatabaseOp();
+        dbOp.getConnection();
+
+        String sql = "select count(*) from pin where pin = '" + pin + "'";
+        int cnt = Integer.parseInt(dbOp.select(sql, "count"));
+
+        dbOp.closeConnection();
+
+        if (cnt == 0) {
+            System.out.println("New pin is not duplicated, nice");
+            return false;
+        } else {
+            System.out.println("New pin duplicated, will auto re-generate");
+            return true;
         }
-        return sb.toString();
+    }
+
+    private static void storePin(String pin) {
+        DatabaseOp dbOp = new DatabaseOp();
+        dbOp.getConnection();
+
+        String statement = "insert into pin (pin)";
+        String[] para = {pin};
+        dbOp.insert(statement, para, 1);
+
+        dbOp.closeConnection();
+
+        System.out.println("Client bound.");
     }
 
     private static void storeNamePt(String token, String pt) {
@@ -155,7 +193,7 @@ public class Client {
 
         String statement = "insert into client_lib (token, pt)";
         String[] para = {token, pt};
-        dbOp.insert(statement, para);
+        dbOp.insert(statement, para, 2);
 
         dbOp.closeConnection();
 
@@ -167,7 +205,7 @@ public class Client {
         dbOp.getConnection();
 
         String sql = "select pt from client_lib where token = '" + token + "'";
-        String pt = dbOp.select(sql);
+        String pt = dbOp.select(sql, "pt");
 
         dbOp.closeConnection();
         return pt;

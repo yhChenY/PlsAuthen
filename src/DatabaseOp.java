@@ -16,7 +16,7 @@ public class DatabaseOp {
         host = "localhost";
         dbname = "fido2";
         user = "postgres";
-        password = "cyh.1592364780.";
+        password = "hhxx123.";
         port = "5432";
     }
     
@@ -50,12 +50,17 @@ public class DatabaseOp {
         }
     }
     
-    public void insert(String statement, String[] info) {
-        String sql = statement + "values (?,?)";
+    public void insert(String statement, String[] para, int paraNum) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < paraNum; i++) {
+            sb.append("?,");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        String sql = statement + "values (" + sb.toString() + ")";
         try {
             PreparedStatement ps = con.prepareStatement(sql);
-            for (int i = 0; i < 2; i++) {
-                ps.setString(i + 1, info[i]);
+            for (int i = 0; i < paraNum; i++) {
+                ps.setString(i + 1, para[i]);
             }
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -72,7 +77,7 @@ public class DatabaseOp {
         }
     }
     
-    public String select(String sql) {
+    public String select(String sql, String columbLabel) {
         Statement stmt = null;
         try {
             stmt = con.createStatement();
@@ -80,7 +85,7 @@ public class DatabaseOp {
             ResultSet rs = stmt.executeQuery(sql);
             String pt = "";
             while (rs.next()) {
-                pt = rs.getString("pt");
+                pt = rs.getString(columbLabel);
             }
             
             rs.close();
