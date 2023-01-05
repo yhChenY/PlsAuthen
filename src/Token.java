@@ -5,6 +5,15 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 
+/**
+ * CTAP中Token和Client都没写哈希H()（即K目前等于协同密钥）
+ */
+
+/**
+ * pkA指的是A方生成的公钥
+ * kAB指的是A方生成的协同密钥
+ */
+
 public class Token {
     public String name;    // 8 bits
     private String pinH;
@@ -26,7 +35,7 @@ public class Token {
             kaA.init(keyPairA.getPrivate());
             PublicKey publicKeyA = keyPairA.getPublic();
             String pkAstr = Base64.encodeBytes(publicKeyA.getEncoded());
-            System.out.println("pkAstr: " + pkAstr);
+//            System.out.println("pkAstr: " + pkAstr);
 
             // 接收client的公钥、pin、协同密钥
             // 验证ECDH，若验证通过则返回 (K + client生成的pin)，否则返回null
@@ -56,11 +65,11 @@ public class Token {
             KeyAgreement kaA = KeyAgreement.getInstance("ECDH");
             kaA.init(keyPairA.getPrivate());
             PublicKey publicKeyA = keyPairA.getPublic();
-            String pbkAstr = Base64.encodeBytes(publicKeyA.getEncoded());
+            String pkAstr = Base64.encodeBytes(publicKeyA.getEncoded());
 
             // 接收client的公钥、pinH、协同密钥
             // 验证ECDH，若验证通过则返回(K + client计算的pinH)，否则返回null
-            String rst = Client.requestBind(pbkAstr);
+            String rst = Client.requestBind(pkAstr);
             String KPinH = verify(kaA, rst, 6);
 
             if (KPinH != null) {
@@ -81,6 +90,7 @@ public class Token {
                     System.out.println("Wrong PIN!");
                     System.out.println("your pinH: " + pinH + "\nthis.pinH: " + this.pinH);
                     return false;
+
                 }
             } else {
                 System.out.println("Risk of tampering, terminated.");
@@ -112,7 +122,7 @@ public class Token {
             String decrypted = AESUtil.decrypt(encrypted);
             String pin = decrypted.substring(0, len);    // pin or pinH
             String kBAstr = decrypted.substring(len);
-            System.out.println("kBAstr: " + kBAstr);
+//            System.out.println("kBAstr: " + kBAstr);
 
             byte[] pkBbyte = Base64.decode(pkBstr);
             KeyFactory kf = KeyFactory.getInstance("EC");
@@ -122,7 +132,7 @@ public class Token {
             kaA.doPhase(pkB, true);
             byte[] kAB = kaA.generateSecret();
             String kABstr = Base64.encodeBytes(kAB);    // 44 bits
-            System.out.println("kABstr: " + kABstr);
+//            System.out.println("kABstr: " + kABstr);
 
             String K = generateK(kABstr);
 
@@ -144,7 +154,6 @@ public class Token {
     }
 
     private String generatePt() {
-        // 还没有去重操作（）
         final String chars = "01";
 
         SecureRandom random = new SecureRandom();

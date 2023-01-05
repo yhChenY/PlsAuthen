@@ -4,11 +4,14 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Scanner;
 
+/**
+ * CTAP中Token和Client都没写哈希H()（即K目前等于协同密钥），而且Client可能还没写generateK方法
+ * verifyBind没有验证椭圆曲线加密（即K）
+ * Validate过程没写内容（即generateT方法）
+ */
 
 public class Client {
-
     int clientId;
-
 
     static String requestSetup(String pkAStr) {
         try {
@@ -46,7 +49,7 @@ public class Client {
             String pt = decrypted.substring(0, 128);
             String kABstr = decrypted.substring(128);
 
-            // 还没有验证K
+            // 还没有验证椭圆曲线加密
 
 
 //            System.out.println("token: " + token);
@@ -91,13 +94,13 @@ public class Client {
     private static String generateRst(String pin, String pkAStr) {
         String key = generateKey(pkAStr);
         String pkBstr = key.substring(0, 124);
-        System.out.println("pkBstr: " + pkBstr);
+//        System.out.println("pkBstr: " + pkBstr);
         String kBAstr = key.substring(124);
-        System.out.println("kBAstr: " + kBAstr);
+//        System.out.println("kBAstr: " + kBAstr);
 
         String src = pin + kBAstr;
         String encrypted = AESUtil.encrypt(src);
-        System.out.println("encrypted: " + encrypted);
+//        System.out.println("encrypted: " + encrypted);
         String rst = pkBstr + encrypted;
         return rst;
     }
