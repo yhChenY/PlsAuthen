@@ -1,4 +1,6 @@
 import javax.crypto.KeyAgreement;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
@@ -104,9 +106,9 @@ public class Token {
     }
 
     boolean validate(String message) {
-        String t = message.substring(0, 128);    // len取决于HMAC
-        String M = message.substring(128);
-        String tCal = generateT(M, pt);
+        String t = message.substring(0, 44);    // len取决于HMAC
+        String M = message.substring(44);
+        String tCal = generateT(M, pt, "123456");    // 这个key我目前还没了解怎么处理，所以都用的“123456”
 
         if (t.equals(tCal)) {
             return true;
@@ -148,8 +150,20 @@ public class Token {
         return null;
     }
 
-    private String generateT(String M, String pt) {
-        String t = pt + M;
+    private String generateT(String M, String pt, String key) {
+        String msg = pt + M;
+        String t = null;
+
+        try {
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKeySpec);
+            t = Base64.encodeBytes(mac.doFinal(Base64.decode(msg)));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return t;
     }
 

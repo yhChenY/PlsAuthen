@@ -1,4 +1,6 @@
 import javax.crypto.KeyAgreement;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -37,7 +39,7 @@ public class Client {
 
         // 返回公钥、加密（pinH、对称密钥）
         String rst = generateRst(pinH, pkAStr);
-        System.out.println("client return: " + rst);
+//        System.out.println("client return: " + rst);
         return rst;
     }
 
@@ -64,25 +66,37 @@ public class Client {
     static void authorize(String M, Token token) {
         System.out.println("\nAuthorize start!");
         String name = token.name;
-        System.out.println("Search pt of token: " + token);
+        System.out.println("Client search pt of token: " + token);
         String pt = getPt(name);
         if (pt.length() == 0) {
             System.out.println("Not trusted client!");
         } else {
-            System.out.println("client found pt: " + pt);
-            String t = generateT(M, pt);
+//            System.out.println("client found pt: " + pt);
+            String t = generateT(M, pt, "123456");    // 这个key我目前还没了解怎么处理，所以都用的“123456”
             boolean b = token.validate(t + M);
 
             if (b) {
-                System.out.println("Allowed!");
+                System.out.println("Authorize allowed!");
             } else {
-                System.out.println("Rejected!");
+                System.out.println("Authorize rejected!");
             }
         }
     }
 
-    private static String generateT(String M, String pt) {
-        String t = pt + M;
+    private static String generateT(String M, String pt, String key) {
+        String msg = pt + M;
+        String t = null;
+
+        try {
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKeySpec);
+            t = Base64.encodeBytes(mac.doFinal(Base64.decode(msg)));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return t;
     }
 
@@ -186,8 +200,6 @@ public class Client {
         dbOp.insert(statement, para, 1);
 
         dbOp.closeConnection();
-
-        System.out.println("Client bound.");
     }
 
     private static void storeNamePt(String token, String pt) {
